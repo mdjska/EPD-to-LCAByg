@@ -7,14 +7,15 @@ import pandas as pd
 import xmltodict
 from pprint import pprint
 
-def convert_to_lcabyg():
+def convert_to_lcabyg(process_json):
+    print("converting")
     return
 
-def pprint_indicators(process_flow_json, module_flag=False):
+def pprint_indicators(process_json, module_flag=False):
     
     indicators = {}
 
-    for obj in process_flow_json["LCIAResults"]["LCIAResult"]:
+    for obj in process_json["LCIAResults"]["LCIAResult"]:
         indicator = {"Indicator": [], "Unit": [], "Emissions": [], "Total": []}
     
         # indicator_name = obj["referenceToLCIAMethodDataSet"]["shortDescription"][1][
