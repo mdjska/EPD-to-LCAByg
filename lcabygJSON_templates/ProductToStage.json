@@ -1,0 +1,15 @@
+ [
+  {
+    "Edge": [
+      {
+        "ProductToStage": {
+          "id": "ef2adc40-4ee0-415c-a5f8-c16e60100fee",
+          "excluded_scenarios": [],
+          "enabled": true
+        }
+      },
+      "87b88977-bea0-4a70-9508-b4b49b20085a",
+      "b70da4f1-bfea-410c-888b-5ee358bcd36f"
+    ]
+  }
+]

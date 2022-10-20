@@ -1,0 +1,19 @@
+[
+  {
+    "Node": {
+      "Product": {
+        "id": "",
+        "name": {
+          "English": "",
+          "German": "",
+          "Danish": ""
+        },
+        "source": "User",
+        "locked": false,
+        "comment": "",
+        "uncertainty_factor": 1.0,
+        "uncertainty_factor_dgnb": 1.3
+      }
+    }
+  }
+]

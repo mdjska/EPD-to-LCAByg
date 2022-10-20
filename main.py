@@ -165,7 +165,7 @@ def process_info(nodeid, uuid, my_header, okobau, pprint=False):
             type=click.Choice(['y', 'n'], case_sensitive=False),
             default='n'
             )
-        _, lines = pprint_indicators(process_json, module_flag=module_flag)
+        _, lines, _ = pprint_indicators(process_json, module_flag=module_flag)
         click.echo_via_pager("\n".join(lines), color=True)
 
     return process_json, choice_url
@@ -177,7 +177,9 @@ def save_to_file(process_json, name=None, convert=False):
         #print(colored(f"\nYour EPD's name is: {name}\n", "green"))
     
     if not convert:
+        print("######: ", name)
         incremental_path = get_incremental_path(name)
+        print("######: ", incremental_path)
         if not incremental_path.parent.absolute().exists():
             incremental_path.parent.absolute().mkdir(parents=True)
         with open(incremental_path, "x") as f:
@@ -236,8 +238,9 @@ def info_or_convert(my_header,search_flag, json_result=None, okobau=None, nodeid
         back(my_header, json_result=json_result, nodeid=nodeid, uuid=uuid, search_flag=search_flag)
     elif choice_ICS == "c":
         process_json, uri = process_info(nodeid, uuid, my_header, okobau, pprint=False)
-        converted_file, name = convert_to_lcabyg(process_json, uri, my_header)
-        save_to_file(converted_file, name, convert=True)
+        stages = convert_to_lcabyg(process_json, uri, my_header)
+        for stage in stages:
+            save_to_file(stage[0], stage[1], convert=True)
         back(my_header, json_result=json_result, nodeid=nodeid, uuid=uuid, search_flag=search_flag)
     elif choice_ICS == "s":
         process_json,_ = process_info(nodeid, uuid, my_header,okobau , pprint=False)
