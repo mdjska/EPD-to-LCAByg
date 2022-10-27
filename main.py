@@ -104,18 +104,18 @@ def get_incremental_path(ctx, name, dir=False):
     full_path = os.path.join(os.getcwd(), default_path)
     if dir:
         result_folder = ctx.obj['result_folder']
-        result_folder = pathlib.Path(result_folder).resolve()
-        full_path = pathlib.Path.joinpath(result_folder, default_path)
+        result_folder = Path(result_folder).resolve()
+        full_path = Path.joinpath(result_folder, default_path)
 
     path = click.prompt(
     "Path: ",
-    type=click.Path(dir_okay=True, writable=True, path_type=pathlib.Path),
+    type=click.Path(dir_okay=True, writable=True, path_type=Path),
     default= full_path,
     )
     if not dir:
         if path.is_dir():
-            path = pathlib.Path.joinpath(path, default_path)
-        if not pathlib.Path(path).suffix == '.json':
+            path = Path.joinpath(path, default_path)
+        if not Path(path).suffix == '.json':
             click.secho("Seems like you're missing a JSON file extention. Add '.json' at the end of your path.", fg='red')
             path = get_incremental_path(name)
     if os.path.exists(path):
@@ -171,26 +171,27 @@ def process_info(nodeid, uuid, my_header, okobau, pprint=False):
     return process_json, choice_url
 
 
-def save_to_file(process_json, name=None, convert=False):
+def save_to_file(process_json, name=None, stage=None, incremental_path=None, convert=False):
     if not name:
         name = process_json["processInformation"]["dataSetInformation"]["name"]["baseName"][0]["value"]
         #print(colored(f"\nYour EPD's name is: {name}\n", "green"))
     
     if not convert:
-        print("######: ", name)
-        incremental_path = get_incremental_path(name)
-        print("######: ", incremental_path)
-        if not incremental_path.parent.absolute().exists():
-            incremental_path.parent.absolute().mkdir(parents=True)
-        with open(incremental_path, "x") as f:
+        file_path = get_incremental_path(name)
+        print("######: ", file_path)
+        if not file_path.parent.absolute().exists():
+            file_path.parent.absolute().mkdir(parents=True)
+        with open(file_path, "x") as f:
             f.write(json.dumps(process_json, ensure_ascii=False, indent=4))
-    elif convert:
-        incremental_path = get_incremental_path(name, dir=True)
-        incremental_path.mkdir(parents=True)
-        incremental_path = pathlib.Path.joinpath(incremental_path, "Stage.json")
-        with open(incremental_path, "x") as f:
+    elif convert and incremental_path:
+        if not os.path.exists(incremental_path):
+            incremental_path.mkdir(parents=True)
+        stage_path = Path.joinpath(incremental_path, stage)
+        stage_path.mkdir()
+        file_path = Path.joinpath(stage_path, "Stage.json")
+        with open(file_path, "x") as f:
             f.write(json.dumps(process_json, ensure_ascii=False, indent=4))
-    click.secho(f'File was saved to "{incremental_path}"', fg="green")
+    click.secho(f'File was saved to "{file_path}"', fg="green")
     return
 
 
@@ -238,9 +239,10 @@ def info_or_convert(my_header,search_flag, json_result=None, okobau=None, nodeid
         back(my_header, json_result=json_result, nodeid=nodeid, uuid=uuid, search_flag=search_flag)
     elif choice_ICS == "c":
         process_json, uri = process_info(nodeid, uuid, my_header, okobau, pprint=False)
-        stages = convert_to_lcabyg(process_json, uri, my_header)
+        stages = convert_to_lcabyg(process_json, uri, my_header, nodeid)
+        incremental_path = get_incremental_path(stages[0][1], dir=True)
         for stage in stages:
-            save_to_file(stage[0], stage[1], convert=True)
+            save_to_file(process_json = stage[0], name = stage[1], stage = stage[2], incremental_path=incremental_path, convert=True)
         back(my_header, json_result=json_result, nodeid=nodeid, uuid=uuid, search_flag=search_flag)
     elif choice_ICS == "s":
         process_json,_ = process_info(nodeid, uuid, my_header,okobau , pprint=False)
